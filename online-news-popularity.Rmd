@@ -1,0 +1,918 @@
+---
+title: "MASHABLE POPULARITY NEWS"
+author: "Pallabi Dutta"
+date: "July 29, 2024"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+# INTRODUCTION
+
+## Description of the Problem Statement and Objective of the study
+
+In the rapidly evolving digital age, the dissemination of news has largely shifted from traditional print media to online platforms. This transition has created a competitive landscape where the popularity of news articles is crucial for driving web traffic, engagement, and revenue. Understanding the factors that contribute to the popularity of online news articles can provide valuable insights for content creators, publishers, and marketers to optimize their strategies and maximize reach. This dataset summarizes a heterogeneous set of features about articles published by Mashable in a period of two years. 
+
+The objective of this project is to conduct data analysis on the Online News Popularity dataset to uncover patterns, trends, and insights that could inform strategies for increasing the popularity of online news articles and to predict the number of shares in social networks (popularity). 
+
+## DATA DESCRIPTION
+
+The dataset is obtained from UCI Machine Learning Repository [Online New Popularity](https://archive.ics.uci.edu/dataset/332/online+news+popularity).
+
+The dataset consists of 39,644 entries with 61 columns. The main variable in the study is the number of shares, which serves as the indicator of a site’s or post’s popularity. This is followed by 61 additional variables as detailed below:
+<details>
+<summary>Click to View</summary>
+
+• **url:** URL of the article (non-predictive).
+
+• **timedelta:** Days between the article publication and the dataset acquisition (non-predictive).
+
+• **n_tokens_title:** Number of words in the title.
+
+• **n_tokens_content:** Number of words in the content.
+
+• **n_unique_tokens:** Rate of unique words in the content.
+
+• **n_non_stop_words:** Rate of non-stop words in the content.
+
+• **n_non_stop_unique_tokens:** Rate of unique non-stop words in the content.
+
+• **num_hrefs:** Number of links.
+
+• **num_self_hrefs:** Number of links to other articles published by Mashable.
+
+• **num_imgs:** Number of images.
+
+• **num_videos:** Number of videos.
+
+• **average_token_length:** Average length of the words in the content.
+
+• **num_keywords:** Number of keywords in the metadata 
+
+• **data_channel_is_lifestyle:** Is data channel 'Lifestyle'?
+
+• **data_channel_is_entertainment:** Is data channel 'Entertainment'?
+
+• **data_channel_is_bus:** Is data channel 'Business'?
+
+• **data_channel_is_socmed:** Is data channel 'Social Media'?
+
+• **data_channel_is_tech:** Is data channel 'Tech'?
+
+• **data_channel_is_world:** Is data channel 'World'? 
+
+• **kw_min_min:** Worst keyword (min. shares).
+
+• **kw_max_min:** Worst keyword (max. shares).
+
+• **kw_avg_min:** Worst keyword (avg. shares) .
+
+• **kw_min_max:** Best keyword (min. shares) .
+
+• **kw_max_max:** Best keyword (max. shares) .
+
+• **kw_avg_max:** Best keyword (avg. shares) .
+
+• **kw_min_avg:** Avg. keyword (min. shares) .
+
+• **kw_max_avg:** Avg. keyword (max. shares) .
+
+• **kw_avg_avg:** Avg. keyword (avg. shares).
+
+• **self_reference_min_shares:** Min. shares of referenced articles in Mashable.
+
+• **self_reference_max_shares:** Max. shares of referenced articles in Mashable.
+
+• **self_reference_avg_shares:** Avg. shares of referenced articles in Mashable.
+
+• **weekday_is_monday:** Was the article published on a Monday?
+
+• **weekday_is_tuesday:** Was the article published on a Tuesday? 
+
+• **weekday_is_wednesday:** Was the article published on a Wednesday?
+
+• **weekday_is_thursday:** Was the article published on a Thursday? 
+
+• **weekday_is_friday:** Was the article published on a Friday?
+
+• **weekday_is_saturday:** Was the article published on a Saturday?
+
+• **weekday_is_sunday:** Was the article published on a Sunday?
+
+• **is_weekend:** Was the article published on the weekend? 
+
+• **LDA_00:** Closeness to LDA topic 0.
+
+• **LDA_01:** Closeness to LDA topic 1.
+
+• **LDA_02:** Closeness to LDA topic 2.
+
+• **LDA_03:** Closeness to LDA topic 3.
+
+• **LDA_04:** Closeness to LDA topic 4.
+
+• **global_subjectivity:** Text subjectivity.
+
+• **global_sentiment_polarity:** Text sentiment polarity.
+
+• **global_rate_positive_words:** Rate of positive words in the content.
+
+• **global_rate_negative_words:** Rate of negative words in the content.
+
+• **rate_positive_words:** Rate of positive words among non-neutral tokens.
+
+• **rate_negative_words:** Rate of negative words among non-neutral tokens.
+
+• **avg_positive_polarity:** Avg. polarity of positive words.
+
+• **min_positive_polarity:** Min. polarity of positive words.
+
+• **max_positive_polarity:** Max. polarity of positive words.
+
+• **avg_negative_polarity:** Avg. polarity of negative words.
+
+• **min_negative_polarity:** Min. polarity of negative words.
+
+• **max_negative_polarity:** Max. polarity of negative words.
+
+• **title_subjectivity:** Title subjectivity.
+
+• **title_sentiment_polarity:** Title polarity.
+
+• **abs_title_subjectivity:** Absolute subjectivity level.
+
+• **abs_title_sentiment_polarity:** Absolute polarity level.
+
+• **shares:** Number of shares (target).
+
+</details>
+
+At first, we import the data set. Then we use **str()** to find the structure of the data set and information about the class, length and content of each column. 
+
+```{r,echo=FALSE,comment=NA,collapse=TRUE}
+data=read.csv("C:/Users/Pallabi dutta/Downloads/online+news+popularity/OnlineNewsPopularity/OnlineNewsPopularity.csv") 
+str(data)
+```
+
+All of the variables are of integer data type except the first variable url is of character data type.
+
+Now, we take a look at the first few rows of the dataset.
+
+```{r,echo=FALSE,comment=NA}
+library(knitr)
+kable(data[1:10,])
+```
+
+```{r,echo=FALSE,comment=NA}
+dim(data)
+```
+
+Here, **shares** is the response variable.
+
+Our objective is to investigate and identify the decisive factors which result in the sharing of articles published in the Mashable website.
+
+# DATA PREPROCESSING
+
+## Checking for Missing Values
+
+For successful data analysis, it is required to check whether there are any missing values in the data set or not since missing information may lead to erroneous conclusions. If there are missing observations, deleting the rows or columns containing missing values or imputing the missing value with a constant or some statistics like mean, median or mode of each column in which the missing value is located is an effective way of processing the data for further analysis.
+
+```{r,echo=FALSE,comment=NA,collapse=TRUE}
+colSums(apply(data,c(1,2),is.na))
+```
+
+It is found that our data set contains no missing information. Therefore, the analysis can be proceeded.
+
+Here the two non-predictive (**url** and **timedelta**) attributes are dropped from the dataset since these variables are meta-data and cannot be treated as features. **n_tokens_content** represents Number of words in the content. However its minimum value is 0 which means that there are articles that do not have any content. Such records should be dropped as their related attributes add no meaning to the data analysis. The **is_weekend** column is also dropped since it is a duplicate of the already existing **is_saturday** and **is_sunday** columns.
+
+```{r,echo=FALSE,comment=NA}
+data=data[,-c(1,2,39)] 
+data=data[which(data$n_tokens_content!=0),]
+dim(data)
+data1=data[,30:36] 
+data2=data[,12:17] 
+```
+
+The dimension of the data reduces to (38463, 58) from (39,644,61). 
+
+Converting the columns **weekday_is_monday**, **weekday_is_tuesday**, **weekday_is_wednesday**, **weekday_is_thursday**, **weekday_is_friday**, **weekday_is_saturday** and **weekday_is_sunday** into a single variable **day_of_the_week**. 
+
+```{r,echo=FALSE,results='asis',comment=NA,warning=FALSE}
+attach(data)
+day_of_week=rep(NA,times=nrow(data)) 
+for(i in 1:nrow(data))
+{
+if(weekday_is_monday[i]==1) 
+day_of_week[i]="Monday" 
+else if(weekday_is_tuesday[i]==1)
+day_of_week[i]="Tuesday" 
+else if(weekday_is_wednesday[i]==1) 
+day_of_week[i]="Wednesday" 
+else if(weekday_is_thursday[i]==1)
+day_of_week[i]="Thursday" 
+else if(weekday_is_friday[i]==1)
+day_of_week[i]="Friday" 
+else if(weekday_is_saturday[i]==1)
+day_of_week[i]="Saturday" 
+else if(weekday_is_sunday[i]==1)
+day_of_week[i]="Sunday" 
+}
+data=data[,-c(30:36)]
+data=data.frame(data,"day_of_the_week"=day_of_week)
+library(xtable)
+newobject=xtable(data[1:10,])
+print.xtable(newobject,type="html")
+```
+The column **day_of_the_week** represents the day of the week each article was published, based on the information from the seven original columns. Also removing the redundant columns to simplify the data analysis.
+
+Converting the columns **data_channel_is_lifestyle**, **data_channel_is_entertainment**, **data_channel_is_bus**, **data_channel_is_socmed**, **data_channel_is_tech**, **data_channel_is_world** and others into a single variable **data_channel**. 
+
+```{r,echo=FALSE,results='asis',comment=NA,warning=FALSE}
+data_channel=rep(NA,times=nrow(data))
+for(i in 1:nrow(data))
+{
+if(data_channel_is_lifestyle[i]==1)
+data_channel[i]="Lifestyle"
+else if(data_channel_is_entertainment[i]==1)
+data_channel[i]="Entertainment"
+else if(data_channel_is_bus[i]==1)
+data_channel[i]="Business"
+else if(data_channel_is_socmed[i]==1)
+data_channel[i]="Social Media"
+else if(data_channel_is_tech[i]==1)
+data_channel[i]="Tech"
+else if(data_channel_is_world[i]==1)
+data_channel[i]="World"
+else 
+data_channel[i]="Others"
+}
+data=data[,-c(11:17)]
+data=data.frame(data,"data_channel"=data_channel)
+newobject=xtable(data[1:10,])
+print.xtable(newobject,type="html")
+```
+The **data_channel** column is a single column containing the information regarding all types of data channels, therefore, removing the redundant columns to simplify the data analysis.
+
+```{r,echo=FALSE,comment=NA}
+dim(data)
+```
+
+The dimension of the data frame further shrinks from 58 to 46 columns.
+
+Converting the variables **day_of_the_week** and **data_channel** to factor variables.
+This is done since these variables are categorical in nature.
+
+```{r,echo=FALSE,comment=NA}
+data$day_of_the_week=as.factor(data$day_of_the_week)
+data$data_channel=as.factor(data$data_channel)
+```
+
+# EXPLORATORY DATA ANALYSIS
+
+Plotting histogram of the variables to understand each of the feature variables.
+
+```{r,echo=FALSE,comment=NA}
+par(mfrow=c(3,3),mar=c(4,4,2,0.5)) 
+for(j in 1:(ncol(data)-2)) 
+hist(data[,j],xlab=colnames(data)[j],main=paste("Histogram of",colnames(data)[j]),col="light blue",breaks=20)
+```
+  
+<div class="warning" style='background-color:#E9D8DD; color: #69337A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<b>**Summary of analysis:**</b></p>
+<p style='margin-left:1em;text-align:center'>
+The variables **n_tokens_title**, **global_subjectivity**, **global_sentiment_polarity**, **min_negative_polarity** and **avg_positive_polarity** seem to follow normal distributions. 
+
+The variables **n_tokens_content**, **n_unique_tokens**, **n_non_stop_words**, **n_non_stop_unique_words**, **num_hrefs**, **num_self_hrefs**, **num_imgs**, **num_videos**, **average_token_length**, **kw_min_min**, **kw_max_min**, **kw_avg_min**, **kw_min_max**, **kw_avg_max**, **kw_min_avg**, **kw_max_avg**, **kw_avg_avg**, **self_reference_min_shares**, **self_reference_max_shares**, **self_reference_avg_shares**, **LDA_00**, **LDA_01**, **LDA_02**, **LDA_03**, **LDA_04**, **global_rate_positive_words**, **global_rate_negative_words**, **rate_negative_words**, **min_positive_polarity**, **title_subjectivity**, **abs_title_sentiment_polarity** and **shares** are heavily right-skewed.
+
+The variables **kw_max_max**, **max_positive_polarity**, **avg_negative_polarity**, **max_negative_polarity** and **abs_title_subjectivity** are heavily left skewed.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+**Dividing the number of shares by popularity:**
+
+Here, if the number of shares is greater than than the median shares then the share is considered popular otherwise unpopular.
+
+```{r,echo=FALSE,comment=NA}
+labs=function(x)
+{
+if(x<median(shares))
+y="Unpopular"
+else
+y="Popular"
+}
+popularity=sapply(shares,FUN=labs)
+table(popularity)
+barplot(table(popularity),col=c(2,4),ylab="Count") 
+```
+
+<div class="warning" style='background-color:#D9D8DD; color: #69338A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<b>**Popularity of shares:**</b></p>
+<p style='margin-left:1em;text-align:center'>
+The number of popular shares are greater in count than the number of unpopular ones.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+lab=function(x)
+{
+if(x<median(shares))
+y="navyblue"
+else
+y="pink3"
+}
+pops=sapply(shares,FUN=lab)
+plot(n_tokens_title,shares,pch=20,col=pops,main="Scatterplot of shares vs n_token_title by popularity") 
+legend("topright",c("unpopular","popular"),fill=c("navyblue","pink3"))
+```
+
+<div class="warning" style='background-color:#A9D8DE; color: #69239A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<p style='margin-left:1em;text-align:center'>
+The articles having **8 to 16 words** in the title has the **maximum** number of shares.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+plot(n_tokens_content,shares,pch=20,col=pops,main="Scatterplot of shares vs n_token_content by popularity") 
+legend("topright",c("unpopular","popular"),fill=c("navyblue","pink3"))
+```
+
+<div class="warning" style='background-color:#B9D8ED; color: #69348A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<p style='margin-left:1em;text-align:center'>
+An article with words less than **1600** words in the content results in more shares, making the article popular.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+plot(num_hrefs,shares,pch=20,col=pops,main="Scatterplot of shares vs num_hrefs by popularity") 
+legend("topright",c("unpopular","popular"),fill=c("navyblue","pink3"))
+```
+
+<div class="warning" style='background-color:#F9D8DD; color: #69378A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<p style='margin-left:1em;text-align:center'>
+The articles having **0 to 45** links have the **maximum** number of shares. 
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+plot(avg_positive_polarity,shares,pch=20,col=pops,main="Scatterplot of shares vs avg_positive_polarity by popularity") 
+legend("topright",c("unpopular","popular"),fill=c("navyblue","pink3"))
+```
+
+<div class="warning" style='background-color:#D9E8DD; color: #68378A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<p style='margin-left:1em;text-align:center'>
+The articles having average polarity of positive words between **0.2 and 0.6** has the most number of shares.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+par(mar=c(7,6,5,5))
+barplot(table(data_channel),col=c(2,4,5,6,7,11,16),las=2,ylim=c(0,9000))
+box(lwd=2)
+```
+
+<div class="warning" style='background-color:#E9E8DD; color: #67378A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<p style='margin-left:1em;text-align:center'>
+The number of articles published in the subjects **World**, **Tech** and **Entertainment** are greater than compared to all other subjects.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+par(mar=c(13,8,4,8))
+unpop=colSums(data2[which(shares<median(shares)),])
+pop=colSums(data2[which(shares>=median(shares)),])
+barplot(rbind(unpop,pop),beside=TRUE,las=2,col=c(3,7),ylim=c(0,8000),main="Count of unpopular/popular news over different days of a week")
+legend("topright",c("unpopular","popular"),fill=c(3,7))
+box(lwd=2)
+```
+
+<div class="warning" style='background-color:#C9E8DF; color: #67378A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<b>**Popularity of different data channels:**</b></p>
+<p style='margin-left:1em;text-align:center'>
+The hottest subjects of popular shares seem to be the data channels of **Business**, **Technology** and **Social Media** compared to the others.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+par(mar=c(7,6,4,6))
+barplot(table(day_of_week),col=c(2,4,6,7,5,8,3),las=2,ylim=c(0,7500))
+box(lwd=2)
+```
+
+<div class="warning" style='background-color:#E9E8FF; color: #67378A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<p style='margin-left:1em;text-align:center'>
+The majority of articles are published on the weekdays as compared to the weekends.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+par(mar=c(11,6,4,6))
+unpop=colSums(data1[which(shares<median(shares)),])
+pop=colSums(data1[which(shares>=median(shares)),])
+barplot(rbind(unpop,pop),beside=TRUE,las=2,col=c(2,8),ylim=c(0,4000),main="Count of unpopular/popular news over different days of a week")
+legend("topright",c("unpopular","popular"),fill=c(2,8))
+box(lwd=2)
+```
+
+<div class="warning" style='background-color:#F9E8DF; color: #67378A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<b>**Popularity of Shares based on the days of the week:**</b></p>
+<p style='margin-left:1em;text-align:center'>
+The articles published during the majority of weekends (i.e. Saturday and Sunday) tend to be more shared compared to the weekdays with respect to the total articles published on that day. Most popular articles are usually posted on Mondays.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+boxplot(n_non_stop_unique_tokens~popularity,data,ylim=c(0,1.15),col=c(4,5),pch=20)
+```
+
+<div class="warning" style='background-color:#B9E8FE; color: #67478A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<b>**Relationship between rate of unique non-stop words in the content and the number of shares:**</b></p>
+<p style='margin-left:1em;text-align:center'>
+The box plot of the dataset shows that if the rate of unique non_stop words in the content falls within the range of **0.6 to 0.8** has the **maximum** number of shares.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+boxplot(num_imgs~popularity,data,pch=20,col=c("orange","yellow"))
+```
+
+<div class="warning" style='background-color:#C9E8AD; color: #67478A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<b>**Popularity of shares based on the number of images in the content:**</b></p>
+<p style='margin-left:1em;text-align:center'>
+If the number of images in the article is between **1-40** then the article is popular.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+boxplot(num_videos~popularity,data,pch=20,col=c("orange","yellow"))
+```
+
+<div class="warning" style='background-color:#B9E8EB; color: #67478A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<b>**Popularity of shares based on the number of videos in the content:**</b></p>
+<p style='margin-left:1em;text-align:center'>
+If the number of videos in the article is between **1-15** then the article has **maximum** number of shares.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+plot(average_token_length,shares,pch=20,col=pops)
+legend("topright",c("unpopular","popular"),fill=c("navyblue","pink3"))
+```
+
+<div class="warning" style='background-color:#D9E8FE; color: #68478A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<b>**Relationship between average token length and the number of shares:**</b></p>
+<p style='margin-left:1em;text-align:center'>
+If the article has average length of the words in the content between **4-6** then the number of shares is **maximum**.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+plot(num_keywords,shares,pch=20,col=pops)
+legend("topright",c("unpopular","popular"),fill=c("navyblue","pink3"))
+```
+
+<div class="warning" style='background-color:#E9E8FD; color: #67578A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<b>**Relationship between number of keywords and the number of shares:**</b></p>
+<p style='margin-left:1em;text-align:center'>
+The number of keywords in the metadata influences the number of shares. If the number of keywords are **greater than 5** results in more popular articles.
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+```{r,echo=FALSE,comment=NA}
+boxplot(shares,col="orange",pch=20,main="shares")
+```
+
+<details>
+<summary>Click to view the outliers</summary>
+
+```{r,echo=FALSE,comment=NA}
+boxplot(data$shares,col="orange",pch=20,main="shares",plot=FALSE)$out
+```
+</details>
+
+```{r,echo=FALSE,comment=NA}
+hist(data$shares,col="lightblue",main="Histogram of shares")
+```
+
+The dependent variable **shares** has a skewed distribution, meaning it is not evenly spread out. There are also a large number of outliers, which are data points that are very different from the rest. To reduce the impact of these outliers on the model's predictions, a log transformation is performed on the variable **shares**. This means the logarithm of the number of shares for each article is taken.
+
+```{r,echo=FALSE,comment=NA}
+data$shares=log(data$shares)
+hist(data$shares,main="Distribution of log_shares",xlab="Log_shares",col="lightgreen")
+```
+**Fitting a multiple regression model by least squares:**
+
+```{r,echo=FALSE,comment=NA}
+model=lm(shares~.,data)
+summary(model)
+```
+12.89% of the variance in log of shares is explained by the model. 
+The "NA" values in the output indicates that certain coefficients could not be estimated due to singularities in the model matrix. This may occur when one or more predictor variables are perfectly correlated with one another. Therefore, removing the variable with "NA" value.
+
+```{r,echo=FALSE,comment=NA}
+model1=lm(shares~.,data[,-27])
+summary(model1)
+```
+
+The output indicates that approximately 12.89% of the variance in log of shares can be explained by the model. 
+
+## DETECTION OF OUTLIERS AND INFLUENTIAL POINTS:
+
+Now we find whether are any anomalies in the data set.
+
+### Detection of influential points by cook's distance:
+Cook's Distance measures the change in distance in the fitted regression line if an observation is deleted from the regression equation. It therefore combines the outlier and leverage point diagnostics of a measure. The Cook's Distance statistic is 
+
+$D_{i}=\frac{\Sigma_{j=1}^{n}(\hat{y_j}-\hat{y}_{j(i)})^{2}}{ps^{2}}$
+where $s^{2}$ is the Mean Squared Error and $\hat{y}_{j(i)}$ is the fitted response value after deleting the ith observation.
+
+If $D_{i}>\frac{4}{n}$ where n is the number of observations then $D_{i}$is tagged as an influential point. 
+
+```{r,echo=FALSE,comment=NA}
+n=nrow(data)
+t=4/n 
+plot(cooks.distance(model1),pch="*",main="Detection of Influential Point by Cook's Distance",ylim=c(-0.05,0.4))
+abline(h=t,col="red3",lwd=2)
+outlier1=which(cooks.distance(model1)>t) 
+```
+
+The points above the red line are the influential points.
+
+### Detection of outliers using studentized residuals:
+Studentized residuals are a type of standardized residual used in regression analysis to assess the fit of a model. These help in identifying outliers and influential data points. The studentized residual statistic is 
+$e_{i}^{s}=\frac{e_{i}}{\hat\sigma_{(i)} {\sqrt{1-h_{ii}}}}$
+where 
+
+• $e_{i}=y_{i}-\hat{y}_{i}$ is the value of the ith residual (the difference between the observed value and the predicted value).
+
+• $\hat\sigma_{(i)}$ is the standard deviation of the residuals calculated without the ith observation.
+
+• $h_{ii}$ is the leverage of the ith observation, a measure of the influence of the ith data point on the fitted value.
+
+At 5% level of significance, if $e_{i}^{s}>2$ then the ith observation can be tagged as an outlier. 
+
+```{r,echo=FALSE,comment=NA}
+plot(rstudent(model1),pch="*",main="Detection of Outlier by studentized residual")
+abline(h=2,col="green",lwd=2)
+outlier=which(rstudent(model1)>2)
+```
+
+The points above the green line indicate the outliers of the data.
+
+Removing the points (which are both influential as well as outlier) from the dataset to clean the dataset and make the data ready for further analysis.
+
+```{r,echo=FALSE,comment=NA}
+data1=data[-c(intersect(outlier1,outlier)),] 
+cat("Original dimension:",dim(data))
+cat("New dimension:",dim(data1))
+```
+
+The original dimension shrinks.
+
+**Fitting the multiple linear regression model after removing the outliers:**
+
+```{r,echo=FALSE,comment=NA}
+model2=lm(shares~.,data1[,-27])
+summary(model2)
+```
+
+The output indicates that approximately 15.54% of the variance in log of shares can be explained by the model and the residual standard error is 0.7211. This model has improved a bit from the previous models.  
+
+# CHECKING MODEL ASSUMPTIONS
+
+## Heteroscedasticity:
+
+*The Mashable dataset may show heteroscedasticity because different types of articles can have varying numbers of shares. Some articles might go viral, while others do not get much attention, leading to differences in variance. Changes in popularity over time and factors like the author's reputation can also affect shares.*
+
+```{r,echo=FALSE,comment=NA}
+plot(fitted(model2),residuals(model2),pch="*",col="navyblue",main="Residuals vs Fitted",xlab="Fitted values",ylab="Residuals")
+abline(h=0,col="red4",lwd=2)
+```
+
+**Test of homoscedasticity:**
+
+```{r,echo=FALSE,comment=NA,warning=FALSE}
+library(carData)
+library(car)
+ncvTest(model2)
+```
+
+<div class="warning" style='background-color:#C3F2FE; color: #68738A; border-left: solid #818AD5 4px; border-radius: 4px; padding:0.5em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<p style='margin-left:1em; text-align:center'>
+**The residuals plot indicate heteroscedasticity in the model. Also the levene's test has a p-value <2.22e-16 which results in the rejection of the null hypothesis of homoscedasticity.**
+</p>
+<p style='margin-bottom:0.5em; margin-right:0.5em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+## Linearity:
+
+<div class="warning" style='background-color:#D3F2DD; color: #68738A; border-left: solid #818AD5 4px; border-radius: 4px; padding:0.5em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<p style='margin-left:1em; text-align:center'>
+**The pattern in the residuals in the plot violate the assumption of linearity.**
+</p>
+<p style='margin-bottom:0.5em; margin-right:0.5em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+## Autocorrelation:
+
+*News popularity may exhibit autocorrelation if the observations are collected over time and show a correlation with their past values. If the dataset includes time-series data, such as the number of shares or views of articles over time, it is likely that the values at one time point are influenced by values at previous time points. News articles may have trending patterns where the popularity of an article can affect the popularity of subsequent articles, leading to positive autocorrelation. This may happen that certain topics perform better at specific times of the year which may create autocorrelation*
+
+Autocorrelation is defined as the correlation between the members of a series of observations. We need to test if $cov(\epsilon_{i},\epsilon_{j})\ne0\forall i\ne j$
+
+We use durbin watson test for detecting autocorrelation: $d=\frac{\sum_{i=2}^{n}(\epsilon_{i}-\epsilon_{i-1})^{2}}{\sum_{i=1}^{n}\epsilon_{i}^{2}}$
+
+The following assumptions are made to use the statistic d:
+
+• Model includes intercept term
+
+• Explanatory variables are non stochastic
+
+• $\epsilon_{i}'s$ are generated from AR(1) model, i.e., $\epsilon_{i}=\epsilon_{i-1}+u_{i}\forall i=1(1)300.$
+
+• $\epsilon_{i}\sim N(0,\sigma^{2})\forall i=1(1)300$
+
+• No missing observations
+ 
+Sample correlation estimate: $\hat{\rho}=\frac{\sum_{i=1}^{n}\hat{\epsilon_{i}}\hat{\epsilon}_{i-1}}{\sqrt{\sum_{i=2}^{n}\hat{\epsilon}_{i-1}^{2}\sum_{i=1}^{n}\hat{\epsilon}_{i}^{2}}}$
+
+Assuming $\sum_{i=1}^{n}\hat{\epsilon}_{i}^{2}\approx\sum_{i=2}^{n}\hat{\epsilon}_{i-1}^{2}$,we have $d=2(1-\hat{\rho})$
+
+We want to test $H_{0}:\hat{\rho}=0$ against $H_{1}:\hat{\rho}\ne0$
+
+If $d$ value turns out to be near $2$ then there is no autocorrelation.
+
+```{r,echo=FALSE,comment=NA,warning=FALSE}
+d=durbinWatsonTest(model2)
+d$dw
+```
+
+<div class="warning" style='background-color:#A4F2FE; color: #68738A; border-left: solid #818AD5 4px; border-radius: 4px; padding:0.5em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<p style='margin-left:1em; text-align:center'>
+**The value of Durbin Watson test statistic d turns out to be close to 2. Thus, the null hypothesis cannot be rejected at 5% level of significance and conclude that there is no autocorrelation in error terms.**
+</p>
+<p style='margin-bottom:0.5em; margin-right:0.5em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+## Multicollinearity
+
+*Multicollinearity may be present in the Mashable online news dataset may arise due to several factors such as:
+Many features may measure similar aspects of the articles, such as **n_tokens_title** and **n_unique_tokens** leading to high correlations.
+Some features could be derived from others, like **n_tokens_content** being related to **n_unique_tokens** which can create redundancy.
+Articles on similar topics or from the same author may exhibit correlated characteristics, contributing to multicollinearity.*
+
+Multicollinearity means the existence of perfect relationship among all explanatory variables in a regression model.
+In this model, an exact relationship is said to exist if the following condition is satisfied: $\beta_{1}x_{i1}+\beta_{2}x_{i2}+\beta_{3}x_{i3}+\beta_{4}x_{i4}+\beta_{5}x_{i5}+\beta_{6}x_{i6}=0$ where not all coefficients are simultaneously zero.
+In terms of linear algebra, we explore an issue of multicollinearity if exact linear relationship among the regressors, i.e., at least one column of X will be linear combination of the others and Rank(X) will not be of full column rank and as a result X'X will not be invertible.
+
+In order to detect multicollinearity, we use a standard measure known as **Variance Inflation Factor (VIF)**. 
+
+In the model, $Y_{i}=\beta_{0}+\beta_{1}x_{i1}+\beta_{2}x_{i2}+\beta_{3}x_{i3}+\beta_{4}x_{i4}+\beta_{5}x_{i5}+\beta_{6}x_{i6}+\epsilon_{i}\forall i=1(1)300$, the VIF of the regressor of the jth regressor is defined as: $VIF_{j}=\frac{1}{1-R_{(j)}^{2}}$ where $R_{(j)}^{2}$ is the coefficient of determination from the equation $X_{i}$ on $(X_{1},X_{2},...,X_{j-1},X_{j+1},...,X_{p})$.$VIF_{j}$ measures the dependence of $X_{j}$ on all other 5 regressors. A large VIF value indicates multicollinearity in the model. As a thumb rule, if $VIF>5$ we conclude that there is multicollinearity in the model.
+
+```{r,echo=FALSE,comment=NA}
+vif(model2)
+```
+<div class="warning" style='background-color:#D9A8FD; color: #67578A; border-left: solid #805AD5 4px; border-radius: 4px; padding:0.7em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<p style='margin-left:1em;text-align:center'>
+**The variables n_unique_tokens, n_non_stop_words, n_non_stop_unique_tokens,  "rate_positive_words", "rate_negative_words" have vif values (GVIF^(1/(2 * Df))) greater than 5 indicating that these are the variables which give rise to multicollinearity. Therefore, there is presence of multicollinearity in the model.**
+</p>
+<p style='margin-bottom:1em; margin-right:1em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+## Normality:
+
+*Checking for normality in the news dataset by QQ-Plot:*
+
+```{r,echo=FALSE,comment=NA}
+qqnorm(residuals(model1),col="navyblue",pch=19)
+qqline(residuals(model1),col=2,lwd=2)
+```
+
+<div class="warning" style='background-color:#A4D2EE; color: #68738A; border-left: solid #818AD5 4px; border-radius: 4px; padding:0.5em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<p style='margin-left:1em; text-align:center'>
+**The plot shows slight departures from normality near the tails of the distributions. Based on this Q-Q plot, it is reasonable to conclude that the data is approximately normally distributed, with some minor deviations.**
+</p>
+<p style='margin-bottom:0.5em; margin-right:0.5em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+Therefore, the model assumptions of homoscedasticity does not hold true. Multicollinearity is also detected by the model.
+
+First splitting the data into training and test data and then applying regularization methods like ridge and lasso to handle multicollinearity present in the data.
+
+# TRAIN AND TEST DATA
+
+In order to determine the model efficiency, the data is divided into two parts:
+
+• **training dataset:** subset to train a model.
+
+• **testing dataset:** subset to test the trained model.
+
+The data is divided into training and testing dataset in the ratio 80:20.
+
+```{r,echo=FALSE,comment=NA}
+xx=model.matrix(shares~.,data1)
+y=data1$shares
+ind=sample(1:nrow(xx),0.8*nrow(xx),replace=F)
+train=xx[ind,]
+test=xx[-ind,]
+y_train=y[ind]
+y_test=y[-ind]
+```
+
+# RIDGE REGRESSION
+
+```{r,echo=FALSE,comment=NA,warning=FALSE}
+library(Matrix)
+library(glmnet)
+out=cv.glmnet(train,y_train,intercept=F,alpha=0,nfold=10)
+plot(out)
+```
+
+The **cv.glmnet** function is used for cross-validation of a generalized linear model with regularization. The **cv.glmnet** produces a plot that helps in selecting the best model based on the cross-validation error. 
+
+• **Lambda** $\lambda$ **on the x-axis**: This is the tuning parameter for the regularization strength. Smaller values of $\lambda$ mean less regularization, and larger values mean more regularization.
+
+• **Mean Squared Error (MSE) or Deviance on the y-axis**: This is the measure of prediction error for the model. The plot shows how the error changes with different values of $\lambda$.
+
+• **Dots and Error Bars**: Each dot represents the mean cross-validated error for a given value of λ. The error bars show the variability of the error estimate (usually one standard deviation).
+
+• **Two Vertical Dashed Lines**: 
+  
+   - **Left Line** ($\lambda.min$): This corresponds to the value of λ that gives the minimum mean cross-validated error. This is often referred to as the best λ.
+  
+   - **Right Line** ($\lambda.1se$): This represents the largest value of $\lambda$ such that the cross-validated error is within one standard deviation of the minimum error. This $\lambda$ value is more regularized and can be preferred for simplicity and robustness.
+
+• **x-axis Labels**: The values of $\lambda$ are plotted on a logarithmic scale to better visualize the range of $\lambda$ values.
+
+- **Choosing** $\lambda.min$: The value of $\lambda$ at the left dashed line ($\lambda.min$) gives the model with the best predictive accuracy.
+- **Choosing** $\lambda.1se$: The value of $\lambda$ at the right dashed line ($\lambda.1se$) provides a more regularized and potentially simpler model that might avoid overfitting.
+
+This plot is crucial for understanding how different levels of regularization affect model performance and for selecting an optimal balance between bias and variance.
+
+```{r,echo=FALSE,comment=NA}
+mod=glmnet(train,y_train,intercept=F,alpha=0,lambda=out$lambda.min)
+paste("Coefficients of the ridge model with best predictive accuracy")
+mod$beta
+```
+
+```{r,echo=FALSE,comment=NA}
+test.ridge=predict(mod,newx=test)
+cat("Mean squared error:",mean((y_test-test.ridge)^2))
+cat("Standard Error:",sd((y_test-test.ridge)^2)/sqrt(nrow(test)))
+```
+
+```{r,echo=FALSE,comment=NA}
+res=y_test-test.ridge
+plot(res,pch=20,col="darkgreen")
+abline(h=mean(res),col=2,lwd=3)
+```
+
+
+<div class="warning" style='background-color:#B4D2DE; color: #68738A; border-left: solid #818AD5 4px; border-radius: 4px; padding:0.5em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<p style='margin-left:1em; text-align:center'>
+**The residuals roughly show a constant horizontal band around the mean residual errors line suggesting that the variances of the error terms are equal, thereby indicating no heteroscedasticity in the model.**
+</p>
+<p style='margin-bottom:0.5em; margin-right:0.5em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+# LASSO REGRESSION
+
+```{r,echo=FALSE,comment=NA,warning=FALSE}
+out=cv.glmnet(train,y_train,intercept=F,alpha=1,nfold=10)
+plot(out)
+```
+
+```{r,echo=FALSE,comment=NA}
+mod=glmnet(train,y_train,intercept=F,alpha=1,lambda=out$lambda.min)
+paste("Coefficients of the lasso model with best predictive accuracy:")
+mod$beta
+```
+
+```{r,echo=FALSE,comment=NA}
+test.lasso=predict(mod,newx=test)
+cat("Mean squared error:",mean((y_test-test.lasso)^2))
+cat("Standard Error:",sd((y_test-test.lasso)^2)/sqrt(nrow(test)))
+```
+
+<div class="warning" style='background-color:#C4D2DE; color: #68738A; border-left: solid #818AD5 4px; border-radius: 4px; padding:0.5em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<p style='margin-left:1em; text-align:center'>
+**Lasso regression is not suitable in this case as it drops all of the important predictors. Hence, the ridge regression model is most suitable as it can both handle multicollinearity and remove heteroscedasticity of the data.**
+</p>
+<p style='margin-bottom:0.5em; margin-right:0.5em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+# CONCLUSION
+
+After analyzing the data, our final model is:
+
+<div class="warning" style='background-color:#A4D2FE; color: #68738A; border-left: solid #818AD5 4px; border-radius: 4px; padding:0.5em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<b>**Final Model:**</b></p>
+<p style='margin-left:1em; text-align:center'>
+$log(shares)_i = 0.0202\times$n_tokens_$title_i+0.000022\times$ n_tokens_$content_i + 0.00031 \times$ n_unique_$tokens_i + 0.00025 \times$ n_non_stop_$words_i + 0.00045 \times$ n_non_stop_unique_$tokens_i + 0.00077 \times$ num_$hrefs_i + 0.0021 \times$ num_self_$hrefs_i + 0.00058 \times$ num_$imgs_i + 0.00061 \times$ num_$videos_i + 0.516 \times$ average_token_$length_i + 0.00005 \times$ kw_min_$min_i + 0.0000006 \times$ kw_max_$min_i + 0.000006 \times$ kw_avg_$min_i +  0.00000003 \times$ kw_min_$max_i + 0.0000001 \times$ kw_max_$max_i + 0.0000001 \times$ kw_avg_$max_i + 0.000007 \times$ kw_min_$avg_i + 0.000001 \times$ kw_max_$avg_i + 0.00001 \times$ kw_avg_$avg_i + 0.00000009 \times$ self_reference_min_$shares_i + 0.00000005 \times$ self_reference_max_$shares_i + 0.00000009 \times$ self_reference_avg_$sharess_i + 0.024 \times$ LDA_$00_i + 0.024 \times$ LDA_$01_i + 0.022 \times$ LDA_$02_i + 0.022 \times$ LDA_$03_i + 0.025 \times$ LDA_$04_i + 0.517 \times$ global_$subjectivity_i + 0.119 \times$ global_sentiment_$polarity_i + 1.375 \times$ global_rate_positive_$words_i + 1.362 \times$ global_rate_negative_$words_i + 0.275 \times$ rate_positive_$words_i + 0.115 \times$ rate_negative_$words_i + 0.438 \times$ avg_positive_$polarity_i + 0.175 \times$ min_positive_$polarity_i + 0.149 \times$ max_positive_$polarity_i - 0.159 \times$ avg_negative_$polarity_i - 0.597 \times$ min_negative_$polarity_i - 0.111 \times$ max_negative_$polarity_i + 0.023 \times$ title_$subjectivity_i + 0.0091 \times$ title_sentiment_$polarity_i + 0.083 \times$ abs_title_$subjectivity_i + 0.026 \times$ abs_title_sentiment_$polarity_i + 0.0103 \times$ day_of_the_$weekMonday_i + 0.0099 \times$ day_of_the_$weekSaturday_i + 0.0099 \times$ day_of_the_$weekSunday_i + 0.0104 \times$ day_of_the_$weekThursday_i + 0.0104 \times$ day_of_the_$weekTuesday_i + 0.0104 \times$ day_of_the_$weekWednesday_i + 0.0099 \times$ data_$channelEntertainment_i + 0.0094 \times$ data_$channelLifestyle_i + 0.0103 \times$ data_$channelOthers + 0.0101 \times$ data_$channelSocial Media + 0.0114 \times$ data_$channelTech_i + 0.0103 \times$ data_$channelWorld_i + \epsilon_{i}\forall i=1(1)39644$ 
+
+Since the dependent variable, shares, is log-transformed, any change in this variable is interpreted as a percentage change corresponding to a one-unit change in the independent variable $x_i$. For example, if the number of words in an article or post increases by one, the shares of that post are expected to rise by 0.000022%. 
+The variable with the most significant positive impact on shares is the rate of positive words in the content variable **global_rate_positive_words**, which has an effect of 1.375%. Conversely, the min polarity of negative words variable shows the strongest negative impact, with an effect of -0.597%.
+</p>
+<p style='margin-bottom:0.5em; margin-right:0.5em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+
+<div class="warning" style='background-color:#C4D2EE; color: #68738A; border-left: solid #818AD5 4px; border-radius: 4px; padding:0.5em;'>
+<span>
+<p style='margin-top:1em; text-align:center'>
+<b>**Final Findings:**</b></p>
+<p style='margin-left:1em; text-align:center'>
+The analysis reveals a significant disparity between popular and unpopular articles, with popular shares totaling 20,464 compared to 17,999 for unpopular ones. Key findings indicate that articles with titles containing 8 to 16 words and content under 1,600 words tend to garner the highest shares. Additionally, articles featuring 0 to 45 links and a positive word polarity between 0.2 and 0.6 are more likely to be popular.
+Subject-wise, articles in the categories of **World**, **Tech** and **Entertainment** are published more frequently and attract greater shares, particularly in the **Business**, **Technology** and **Social Media** channels. Interestingly, while most articles are published on weekdays, those released on weekends, especially Saturdays and Sundays, achieve higher share counts.
+The analysis also highlights that articles with 1 to 40 images and 1 to 15 videos tend to be more popular. Furthermore, an optimal average word length of 4 to 6 and a keyword count exceeding five in the metadata positively influence shareability.
+The regression model indicates that various factors, including the number of tokens in titles and content, unique tokens, and sentiment polarity, significantly affect the log of shares. Notably, the coefficients associated with global sentiment and positive word rates suggest that emotional engagement plays a crucial role in enhancing article popularity.
+In summary, the study underscores the importance of title length, content characteristics, multimedia elements and emotional tone in driving article shares, providing actionable insights for content creators aiming to boost engagement.
+</p>
+<p style='margin-bottom:0.5em; margin-right:0.5em; text-align:right; font-family:Georgia'> <b>- </b> <i> </i>
+</p></span>
+</div>
+
+
+
